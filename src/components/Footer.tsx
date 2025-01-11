@@ -24,7 +24,7 @@ export const Footer = () => {
               </div>
               <div className="flex items-center">
                 <MapPin className="w-5 h-5 mr-2" />
-                <span>123 Print Street, Suite 100</span>
+                <span>Moshi, Tanzania</span>
               </div>
             </div>
           </div>
