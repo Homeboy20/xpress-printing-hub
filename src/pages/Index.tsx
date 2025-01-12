@@ -4,17 +4,20 @@ import { WhyChooseUs } from "@/components/WhyChooseUs";
 import { ContactForm } from "@/components/ContactForm";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
-      <Header />
-      <Hero />
-      <Services />
-      <WhyChooseUs />
-      <ContactForm />
-      <Footer />
-    </div>
+    <ProtectedRoute>
+      <div className="min-h-screen">
+        <Header />
+        <Hero />
+        <Services />
+        <WhyChooseUs />
+        <ContactForm />
+        <Footer />
+      </div>
+    </ProtectedRoute>
   );
 };
 

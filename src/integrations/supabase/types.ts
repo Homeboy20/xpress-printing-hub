@@ -9,7 +9,102 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      orders: {
+        Row: {
+          amount: number | null
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          payment_method: string | null
+          payment_reference: string | null
+          payment_status: string | null
+          service_type: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
+          service_type: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
+          service_type?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          favicon_url: string | null
+          hero_image_url: string | null
+          id: string
+          logo_url: string | null
+          site_description: string | null
+          site_title: string | null
+          updated_at: string
+        }
+        Insert: {
+          favicon_url?: string | null
+          hero_image_url?: string | null
+          id?: string
+          logo_url?: string | null
+          site_description?: string | null
+          site_title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          favicon_url?: string | null
+          hero_image_url?: string | null
+          id?: string
+          logo_url?: string | null
+          site_description?: string | null
+          site_title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
