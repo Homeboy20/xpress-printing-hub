@@ -52,7 +52,6 @@ const AuthPage = () => {
         </Tabs>
       </div>
     </div>
-  </div>
   );
 };
 
