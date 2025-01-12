@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PhoneAuth } from "@/components/PhoneAuth";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -31,14 +33,26 @@ const AuthPage = () => {
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ theme: ThemeSupa }}
-          theme="light"
-          providers={[]}
-        />
+        <Tabs defaultValue="email" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="email">Email</TabsTrigger>
+            <TabsTrigger value="phone">Phone</TabsTrigger>
+          </TabsList>
+          <TabsContent value="email">
+            <Auth
+              supabaseClient={supabase}
+              appearance={{ theme: ThemeSupa }}
+              theme="light"
+              providers={[]}
+            />
+          </TabsContent>
+          <TabsContent value="phone">
+            <PhoneAuth setError={setErrorMessage} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
+  </div>
   );
 };
 
