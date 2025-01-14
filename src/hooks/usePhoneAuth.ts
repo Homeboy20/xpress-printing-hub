@@ -9,10 +9,10 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
   const navigate = useNavigate();
 
   const formatPhoneNumber = (phoneNumber: string) => {
-    // Remove any non-digit characters except the plus sign
+    // Remove all non-digit characters except plus sign
     const cleaned = phoneNumber.replace(/[^\d+]/g, '');
     
-    // Ensure it starts with a plus sign
+    // If number doesn't start with +, assume it needs one
     if (!cleaned.startsWith('+')) {
       return `+${cleaned}`;
     }
@@ -24,18 +24,30 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
     e.preventDefault();
     try {
       const formattedPhone = formatPhoneNumber(phone);
-      console.log('Sending OTP to:', formattedPhone); // Debug log
+      console.log('Attempting to send OTP via MessageBird to:', formattedPhone);
       
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error, data } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
+        options: {
+          channel: 'sms'
+        }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('MessageBird OTP Error:', error);
+        throw error;
+      }
+      
+      console.log('OTP sent successfully:', data);
       setShowOTP(true);
       setError("");
     } catch (error: any) {
-      console.error('OTP Error:', error); // Debug log
-      setError(error.message);
+      console.error('MessageBird Error:', error);
+      if (error.message.includes('originator is invalid')) {
+        setError('Please check if MessageBird is properly configured in Supabase Auth settings.');
+      } else {
+        setError(error.message || 'Failed to send verification code');
+      }
     }
   };
 
@@ -43,19 +55,24 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
     e.preventDefault();
     try {
       const formattedPhone = formatPhoneNumber(phone);
-      console.log('Verifying OTP for:', formattedPhone); // Debug log
+      console.log('Verifying OTP for:', formattedPhone);
       
-      const { error } = await supabase.auth.verifyOtp({
+      const { error, data } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
         type: "sms",
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Verification Error:', error);
+        throw error;
+      }
+      
+      console.log('OTP verification successful:', data);
       navigate("/");
     } catch (error: any) {
-      console.error('Verification Error:', error); // Debug log
-      setError(error.message);
+      console.error('Verification Error:', error);
+      setError(error.message || 'Failed to verify code');
     }
   };
 
