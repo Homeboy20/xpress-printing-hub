@@ -9,13 +9,17 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
   const navigate = useNavigate();
 
   const formatPhoneNumber = (phoneNumber: string) => {
-    // Remove all non-digit characters except plus sign
-    const cleaned = phoneNumber.replace(/[^\d+]/g, '');
+    // First, remove all non-digit characters except plus sign
+    let cleaned = phoneNumber.replace(/[^\d+]/g, '');
     
-    // If number doesn't start with +, assume it needs one
+    // Ensure the number starts with a plus sign
     if (!cleaned.startsWith('+')) {
-      return `+${cleaned}`;
+      cleaned = `+${cleaned}`;
     }
+    
+    // MessageBird requires E.164 format
+    // Remove any extra spaces or characters
+    cleaned = cleaned.replace(/\s+/g, '');
     
     return cleaned;
   };
@@ -29,12 +33,16 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
       const { error, data } = await supabase.auth.signInWithOtp({
         phone: formattedPhone,
         options: {
-          channel: 'sms'
+          channel: 'sms',
+          shouldCreateUser: true // Ensure user creation is allowed
         }
       });
       
       if (error) {
         console.error('MessageBird OTP Error:', error);
+        if (error.message.includes('originator is invalid')) {
+          throw new Error('MessageBird configuration error: Please ensure the "From" field is properly set in Supabase Auth settings.');
+        }
         throw error;
       }
       
@@ -43,10 +51,13 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
       setError("");
     } catch (error: any) {
       console.error('MessageBird Error:', error);
-      if (error.message.includes('originator is invalid')) {
-        setError('Please check if MessageBird is properly configured in Supabase Auth settings.');
+      const errorMessage = error.message || 'Failed to send verification code';
+      if (errorMessage.toLowerCase().includes('originator')) {
+        setError('Please check if MessageBird is properly configured in Supabase Auth settings. Ensure the "From" field is set.');
+      } else if (errorMessage.toLowerCase().includes('rate limit')) {
+        setError('Too many attempts. Please wait a few minutes before trying again.');
       } else {
-        setError(error.message || 'Failed to send verification code');
+        setError(errorMessage);
       }
     }
   };
@@ -60,7 +71,7 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
       const { error, data } = await supabase.auth.verifyOtp({
         phone: formattedPhone,
         token: otp,
-        type: "sms",
+        type: "sms"
       });
       
       if (error) {
@@ -72,7 +83,12 @@ export const usePhoneAuth = (setError: (error: string) => void) => {
       navigate("/");
     } catch (error: any) {
       console.error('Verification Error:', error);
-      setError(error.message || 'Failed to verify code');
+      const errorMessage = error.message || 'Failed to verify code';
+      if (errorMessage.toLowerCase().includes('invalid')) {
+        setError('Invalid verification code. Please try again.');
+      } else {
+        setError(errorMessage);
+      }
     }
   };
 
